@@ -1,0 +1,13 @@
+{
+    "env": {
+        "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1"
+    },
+    "cleanupPeriodDays": 30,
+    "permissions": {
+        "deny": [
+            "Edit(**/.git/hooks/**)",
+            "Edit(**/.git/config)",
+            "Write(**/.git/**)"
+        ]
+    }
+}

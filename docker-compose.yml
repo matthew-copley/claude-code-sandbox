@@ -1,0 +1,68 @@
+name: claude-sandbox
+
+services:
+  # Sits between the agent and the internet. It is the only container attached to a network that can route outbound.
+  egress-proxy:
+    image: ubuntu/squid:latest
+    container_name: claude-egress-proxy
+    restart: unless-stopped
+    networks:
+      - sandbox
+      - egress
+    volumes:
+      - ./squid.conf:/etc/squid/squid.conf:ro
+      - ./allowed-domains.txt:/etc/squid/allowed-domains.txt:ro
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c 'echo > /dev/tcp/127.0.0.1/3128' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+
+  claude:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: claude-agent
+    depends_on:
+      egress-proxy:
+        condition: service_healthy
+    networks:
+      - sandbox
+    working_dir: /workspace
+    environment:
+      # Claude Code reads standard proxy vars. Anything that ignores them
+      # simply gets no network at all, which is the desired failure mode.
+      HTTPS_PROXY: http://egress-proxy:3128
+      HTTP_PROXY: http://egress-proxy:3128
+      https_proxy: http://egress-proxy:3128
+      http_proxy: http://egress-proxy:3128
+      NO_PROXY: localhost,127.0.0.1,egress-proxy
+      CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC: "1"
+    volumes:
+      - ./workspace:/workspace
+      - ./claude-base.md:/etc/claude-code/CLAUDE.md:ro
+      - claude-config:/home/claude/.claude # persistent volume for claude memories
+      - ./claude-managed-settings.json:/etc/claude-code/managed-settings.json:ro
+    tmpfs:
+      - /tmp:size=1g,mode=1777
+      - /home/claude/.ssh:size=1m,mode=0700,uid=1000,gid=1000
+    pids_limit: 1024
+    mem_limit: 6g
+    cpus: 4.0
+    stdin_open: true
+    tty: true
+    command: ["sleep", "infinity"]
+
+networks:
+  # internal: true removes the default gateway. No internet, no host LAN,
+  # no 192.168.x.x router, no host.docker.internal.
+  sandbox:
+    driver: bridge
+    internal: true
+  egress:
+    driver: bridge
+
+volumes:
+  claude-config:

@@ -1,0 +1,11 @@
+api.anthropic.com
+claude.ai
+claude.com
+platform.claude.com
+downloads.claude.ai
+github.com
+api.github.com
+codeload.github.com
+objects.githubusercontent.com
+raw.githubusercontent.com
+registry.npmjs.org
