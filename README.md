@@ -24,4 +24,4 @@ Claude will not have access to your ssh keys, and as such will not be able to pu
 
 ## Getting started
 
-Create the `workspace` folder. From the host, clone any repositories you want claude to have access to into this folder, then run docker compose up. Exec into the claude container using `docker compose exec claude zsh`, or claude directly `docker compose exec -w /workspace/myrepo claude claude`. From there, use claude code normally.
+Create the `workspace` folder. From the host, clone any repositories you want claude to have access to into this folder, then run docker compose up. Exec into the claude container using `docker compose exec claude bash`, or claude directly `docker compose exec -w /workspace/myrepo claude claude`. From there, use claude code normally.
