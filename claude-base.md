@@ -6,6 +6,7 @@ You are running inside a Docker container, not on the user's machine.
   rebuilt. Don't put anything you want to keep outside `/workspace`.
 - Network access goes through a filtering proxy that permits a small allowlist
   of domains. Most of the internet is unreachable and will fail with a 403.
+- Python is uable through UV
 
 # Git
 
